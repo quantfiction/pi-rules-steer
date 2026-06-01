@@ -6,6 +6,9 @@ This product includes software derived from @the-forge-flow/pi-rules
 copyright (c) 2026 MonsieurBarti.
 
 Source: https://github.com/MonsieurBarti/pi-rules
+Forked at: @the-forge-flow/pi-rules v0.1.0
+           commit e1cc6b42243714576dd9f1e2fff5a16324f41d85
+           (git tag pi-rules-v0.1.0)
 
 pi-rules-steer adds search-scope semantics for grep/find/ls/code_search
 on top of the upstream operative-tool injection model.
