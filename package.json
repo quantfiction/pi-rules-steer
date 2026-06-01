@@ -1,0 +1,58 @@
+{
+  "name": "pi-rules-steer",
+  "version": "0.0.0",
+  "description": "Pi extension that injects path-conditional rule content into tool results. Adds search-scope semantics on top of @the-forge-flow/pi-rules.",
+  "license": "MIT",
+  "author": "quantfiction",
+  "type": "module",
+  "private": true,
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi",
+    "rules",
+    "context-injection"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quantfiction/pi-rules-steer"
+  },
+  "bugs": {
+    "url": "https://github.com/quantfiction/pi-rules-steer/issues"
+  },
+  "homepage": "https://github.com/quantfiction/pi-rules-steer#readme",
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.74.0"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.74.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0",
+    "vite": "^6.4.2",
+    "vitest": "^4.1.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}

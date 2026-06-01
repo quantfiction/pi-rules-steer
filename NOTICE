@@ -1,0 +1,11 @@
+pi-rules-steer
+Copyright (c) 2026 quantfiction
+
+This product includes software derived from @the-forge-flow/pi-rules
+(also published as the unscoped `pi-rules` npm package), MIT-licensed,
+copyright (c) 2026 MonsieurBarti.
+
+Source: https://github.com/MonsieurBarti/pi-rules
+
+pi-rules-steer adds search-scope semantics for grep/find/ls/code_search
+on top of the upstream operative-tool injection model.
