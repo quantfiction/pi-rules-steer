@@ -5,8 +5,9 @@ Owns the "rule injection" axis of the pi tool-interception ecosystem —
 distinct from command-pattern steering ([pi-bash-steer](https://github.com/quantfiction/pi-bash-steer))
 and safety blocking (pi-guardrails).
 
-**Status: v0.1.4 — operative + scope branches shipped, 141 vitest tests,
-`/pi-rules-steer doctor` slash command, watcher-driven hot reload.**
+**Status: v0.1.0 — initial release. Operative + scope branches shipped,
+141 vitest tests, `/pi-rules-steer doctor` slash command, watcher-driven
+hot reload.**
 
 ## What it does
 
@@ -27,7 +28,7 @@ tool results when the agent operates on matching paths.
 Forked from [@the-forge-flow/pi-rules](https://github.com/MonsieurBarti/pi-rules)
 (MIT, by MonsieurBarti). See [NOTICE](./NOTICE) for attribution.
 
-## Install (future, once v0.1 ships)
+## Install
 
 Add to `~/.pi/agent/settings.json` packages array:
 
