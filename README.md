@@ -5,14 +5,15 @@ Owns the "rule injection" axis of the pi tool-interception ecosystem —
 distinct from command-pattern steering ([pi-bash-steer](https://github.com/quantfiction/pi-bash-steer))
 and safety blocking (pi-guardrails).
 
-**Status: pre-v0.1, skeleton only.** See the MindHive `pi-rules-steer`
-project for the v0.1 build plan.
+**Status: v0.1.4 — operative + scope branches shipped, 141 vitest tests,
+`/pi-rules-steer doctor` slash command, watcher-driven hot reload.**
 
-## What it does (planned)
+## What it does
 
 Discovers Markdown rule files with YAML frontmatter from per-project
-directories (`.pi/rules/`, `.claude/rules/`, `.cursor/rules/`) and injects
-their content into tool results when the agent operates on matching paths.
+directories (`.pi/rules/`, `.claude/rules/`) and per-user directories
+(`~/.pi/rules/`, `~/.claude/rules/`) and injects their content into
+tool results when the agent operates on matching paths.
 
 - **Operative tools** (`read` / `edit` / `write`): inject rules matching
   the single target path.
@@ -64,9 +65,11 @@ Never cross production and dev databases.
 ## Development
 
 ```bash
-pnpm install            # (after v0.1 fork lands)
-pnpm typecheck
-pnpm test
+pnpm install
+pnpm typecheck       # tsc --noEmit
+pnpm test            # vitest run
+pnpm test:coverage   # vitest run --coverage (v8, per-glob ≥80% thresholds)
+pnpm smoke           # hand-driven end-to-end smoke (LLM-free)
 ```
 
 ## License
