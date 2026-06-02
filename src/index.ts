@@ -21,6 +21,7 @@ import { discover, ruleRootCandidates, type Diagnostic } from "./discovery/index
 import { reconcileInjectedIds } from "./discovery/reconcile.js";
 import type { Rule } from "./discovery/types.js";
 import { startWatcher, type Watcher, type WatcherOptions } from "./discovery/watcher.js";
+import { extractScope } from "./extraction/scope.js";
 import { toRelativePosixForLog } from "./internal/log-path.js";
 import { compileMatcher, type Matcher } from "./matching/index.js";
 import { recordInjection } from "./testing/injection-log.js";
@@ -111,20 +112,47 @@ export function makeExtension(deps: ExtensionDeps = {}): (pi: ExtensionAPI) => v
     });
 
     pi.on("tool_result", (e: ToolResultEvent, ctx) => {
-      if (matcher === null) return;
-      if (e.isError) return;
-      if (!isReadToolResult(e) && !isEditToolResult(e) && !isWriteToolResult(e)) return;
-      const raw = (e.input as { path?: unknown }).path;
-      if (typeof raw !== "string" || raw.length === 0) return;
-      const abs = path.resolve(ctx.cwd, raw);
-      const matches = matcher.match(abs, ctx.cwd);
+      if (matcher === null || e.isError) return;
+
+      // Branch 1: operative tools (read/edit/write) — inject against the
+      // single target path. Behavior unchanged from upstream forge-flow.
+      if (isReadToolResult(e) || isEditToolResult(e) || isWriteToolResult(e)) {
+        const raw = (e.input as { path?: unknown }).path;
+        if (typeof raw !== "string" || raw.length === 0) return;
+        const abs = path.resolve(ctx.cwd, raw);
+        const matches = matcher.match(abs, ctx.cwd);
+        if (matches.length === 0) return;
+        const fresh = matches.filter((r) => !injectedIds.has(r.id));
+        if (fresh.length === 0) return;
+        const relPath = toRelativePosixForLog(abs, ctx.cwd);
+        for (const r of fresh) {
+          injectedIds.add(r.id);
+          recordInjection({ path: relPath, ruleId: r.id });
+        }
+        return {
+          content: [...fresh.map((r) => ({ type: "text" as const, text: r.body })), ...e.content],
+        };
+      }
+
+      // Branch 2: search tools (grep/find/ls/code_search) — inject ONCE per
+      // scope when the search scope/glob could overlap a rule's globs.
+      // Single-inject invariant: one fire per rule across the whole session,
+      // dedup'd via the shared injectedIds Set (also used by Branch 1).
+      const extracted = extractScope(e.toolName, e.input, ctx.cwd);
+      if (extracted === null) return;
+      if (extracted.scope === null && extracted.glob === null) return;
+      const matches = matcher.matchScope({ scope: extracted.scope, glob: extracted.glob });
       if (matches.length === 0) return;
       const fresh = matches.filter((r) => !injectedIds.has(r.id));
       if (fresh.length === 0) return;
-      const relPath = toRelativePosixForLog(abs, ctx.cwd);
       for (const r of fresh) {
         injectedIds.add(r.id);
-        recordInjection({ path: relPath, ruleId: r.id });
+        recordInjection({
+          ruleId: r.id,
+          scope: extracted.scope,
+          glob: extracted.glob,
+          viaScope: true,
+        });
       }
       return {
         content: [...fresh.map((r) => ({ type: "text" as const, text: r.body })), ...e.content],
