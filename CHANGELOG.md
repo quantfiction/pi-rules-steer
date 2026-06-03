@@ -39,7 +39,8 @@ semantics added on top of the upstream operative-tool injection model.
 ### Deferred to v0.2
 
 - Bash tool interception (verb-aware scope extraction).
-- Broader smoke coverage across workspace / lifecycle / interactive TUI
-  runtimes (tracked as task v0.1.6).
+- ~~Broader smoke coverage across workspace / lifecycle / interactive TUI
+  runtimes (tracked as task v0.1.6).~~ Completed in v0.1.6 smoke test
+  (2026-06-03); all 3 runtimes verified.
 
 [0.1.0]: https://github.com/quantfiction/pi-rules-steer/releases/tag/v0.1.0
