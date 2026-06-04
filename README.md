@@ -5,9 +5,11 @@ Owns the "rule injection" axis of the pi tool-interception ecosystem —
 distinct from command-pattern steering ([pi-bash-steer](https://github.com/quantfiction/pi-bash-steer))
 and safety blocking (pi-guardrails).
 
-**Status: v0.1.0 — initial release. Operative + scope branches shipped,
-141 vitest tests, `/pi-rules-steer doctor` slash command, watcher-driven
-hot reload.**
+**Status: v0.1.0 shipped. `main` carries unreleased v0.2 work:
+`/pi-rules-steer doctor` now surfaces a `Last injections` section
+(last 5, branch tag + rule id + path/scope+glob + ISO 8601 timestamp).
+144 vitest tests, watcher-driven hot reload, operative + scope
+branches.**
 
 ## What it does
 
