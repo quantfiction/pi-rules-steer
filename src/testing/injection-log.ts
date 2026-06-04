@@ -8,6 +8,8 @@
 export type OperativeInjection = {
   ruleId: string;
   path: string;
+  /** Epoch ms when the injection fired. Added in v0.2 for doctor telemetry. */
+  at: number;
 };
 
 /**
@@ -21,6 +23,8 @@ export type ScopeInjection = {
   scope: string | null;
   glob: string | null;
   viaScope: true;
+  /** Epoch ms when the injection fired. Added in v0.2 for doctor telemetry. */
+  at: number;
 };
 
 export type Injection = OperativeInjection | ScopeInjection;

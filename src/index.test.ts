@@ -132,7 +132,7 @@ describe("piRulesSteerExtension — tool_result operative branch", () => {
   function assertPosixRelativePaths() {
     expect(
       injectionLog
-        .filter((e): e is { ruleId: string; path: string } => "path" in e)
+        .filter((e): e is Extract<typeof e, { path: string }> => "path" in e)
         .every((e) => !/^\//.test(e.path) && !/\\/.test(e.path)),
     ).toBe(true);
   }

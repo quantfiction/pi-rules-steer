@@ -4,6 +4,21 @@ All notable changes to pi-rules-steer are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `/pi-rules-steer doctor` now surfaces a **Last injections** section listing
+  the most recent 5 injections (most-recent first) with branch tag
+  (`[op]` / `[scope]`), rule id, path or scope+glob, and ISO 8601 UTC
+  timestamp. When the per-session buffer is empty, the section prints
+  `(none yet this session)` to advertise the wiring. Resolves the v0.2
+  deferral noted in the v0.1.6 smoke test (workspace `37f53a96`), where
+  branch verification required reading `session.jsonl` directly.
+- `Injection` payloads now carry an `at: number` (epoch ms) field,
+  populated at both `recordInjection` call sites in the `tool_result`
+  handler.
+
 ## [0.1.0] - 2026-06-02
 
 Initial public release. Source-fork of @the-forge-flow/pi-rules v0.1.0

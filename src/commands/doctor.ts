@@ -3,6 +3,7 @@
 
 import type { ExtensionAPI, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
 import * as discoveryMod from "../discovery/index.js";
+import { injectionLog } from "../testing/injection-log.js";
 import { format, hasErrors } from "./doctor-format.js";
 
 export async function runDoctor(
@@ -14,7 +15,7 @@ export async function runDoctor(
   let errored: boolean;
   try {
     const result = await discoveryMod.discover(cwd);
-    report = format(result);
+    report = format(result, { injections: injectionLog });
     errored = hasErrors(result);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

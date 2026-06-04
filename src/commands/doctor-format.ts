@@ -2,6 +2,15 @@
 // See NOTICE for attribution.
 
 import type { Diagnostic, DiscoverResult, Rule } from "../discovery/index.js";
+import type { Injection } from "../testing/injection-log.js";
+
+/** Maximum number of injection entries surfaced by `format()`. */
+export const MAX_INJECTIONS_RENDERED = 5;
+
+export interface FormatOptions {
+  /** Per-session injection telemetry buffer (see `testing/injection-log`). */
+  injections?: readonly Injection[];
+}
 
 export function hasErrors(result: DiscoverResult): boolean {
   return result.diagnostics.some(
@@ -9,7 +18,7 @@ export function hasErrors(result: DiscoverResult): boolean {
   );
 }
 
-export function format(result: DiscoverResult): string {
+export function format(result: DiscoverResult, opts: FormatOptions = {}): string {
   const errors = result.diagnostics.filter(
     (d) => d.kind === "parse_error" || d.kind === "unreadable" || d.kind === "symlink_escape",
   );
@@ -21,6 +30,7 @@ export function format(result: DiscoverResult): string {
   if (errors.length > 0) sections.push(formatErrors(errors));
   if (skipped.length > 0) sections.push(formatSkipped(skipped));
   sections.push(formatCoverage(result));
+  sections.push(formatLastInjections(opts.injections ?? []));
   return [header, ...sections].join("\n\n");
 }
 
@@ -55,6 +65,27 @@ function errorReason(e: Diagnostic): string {
 function formatSkipped(skipped: Diagnostic[]): string {
   const lines: string[] = ["Skipped (no frontmatter):"];
   for (const s of skipped) lines.push(`  ${s.absPath}`);
+  return lines.join("\n");
+}
+
+function formatLastInjections(injections: readonly Injection[]): string {
+  const lines: string[] = ["Last injections (most recent first):"];
+  if (injections.length === 0) {
+    lines.push("  (none yet this session)");
+    return lines.join("\n");
+  }
+  // Tail of the buffer, reversed: most-recent first, capped.
+  const tail = injections.slice(-MAX_INJECTIONS_RENDERED).reverse();
+  for (const inj of tail) {
+    const ts = new Date(inj.at).toISOString();
+    if ("viaScope" in inj) {
+      const scope = inj.scope ?? "(none)";
+      const glob = inj.glob ?? "(none)";
+      lines.push(`  [scope] ${inj.ruleId}  scope=${scope} glob=${glob}  ${ts}`);
+    } else {
+      lines.push(`  [op]    ${inj.ruleId}  path=${inj.path}  ${ts}`);
+    }
+  }
   return lines.join("\n");
 }
 

@@ -127,7 +127,7 @@ export function makeExtension(deps: ExtensionDeps = {}): (pi: ExtensionAPI) => v
         const relPath = toRelativePosixForLog(abs, ctx.cwd);
         for (const r of fresh) {
           injectedIds.add(r.id);
-          recordInjection({ path: relPath, ruleId: r.id });
+          recordInjection({ path: relPath, ruleId: r.id, at: Date.now() });
         }
         return {
           content: [...fresh.map((r) => ({ type: "text" as const, text: r.body })), ...e.content],
@@ -152,6 +152,7 @@ export function makeExtension(deps: ExtensionDeps = {}): (pi: ExtensionAPI) => v
           scope: extracted.scope,
           glob: extracted.glob,
           viaScope: true,
+          at: Date.now(),
         });
       }
       return {
