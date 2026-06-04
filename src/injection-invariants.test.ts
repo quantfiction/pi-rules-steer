@@ -12,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import piRulesSteerExtension from "./index.js";
-import { clearInjectionLog, injectionLog } from "./testing/injection-log.js";
+import { clearInjectionLog, injectionLog } from "./runtime/injection-log.js";
 import { makeFakePi, makeToolResult } from "./testing/fake-pi.js";
 
 function mkProject(rule: { paths: string[]; body: string }): string {

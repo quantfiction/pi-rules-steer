@@ -23,7 +23,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here, "..");
 const { makeExtension } = await import(`${repo}/src/index.ts`);
 const { injectionLog, clearInjectionLog } = await import(
-  `${repo}/src/testing/injection-log.ts`
+  `${repo}/src/runtime/injection-log.ts`
 );
 
 // ---- 1. build a realistic project fixture ---------------------------------

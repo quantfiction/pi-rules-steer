@@ -3,7 +3,7 @@
 
 import type { ExtensionAPI, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
 import * as discoveryMod from "../discovery/index.js";
-import { injectionLog } from "../testing/injection-log.js";
+import { injectionLog } from "../runtime/injection-log.js";
 import { format, hasErrors } from "./doctor-format.js";
 
 export async function runDoctor(

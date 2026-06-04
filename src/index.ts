@@ -24,7 +24,7 @@ import { startWatcher, type Watcher, type WatcherOptions } from "./discovery/wat
 import { extractScope } from "./extraction/scope.js";
 import { toRelativePosixForLog } from "./internal/log-path.js";
 import { compileMatcher, type Matcher } from "./matching/index.js";
-import { recordInjection } from "./testing/injection-log.js";
+import { recordInjection } from "./runtime/injection-log.js";
 
 export type ExtensionDeps = {
   watchFactory?: WatcherOptions["watchFactory"];

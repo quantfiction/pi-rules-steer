@@ -2,13 +2,13 @@
 // See NOTICE for attribution.
 
 import type { Diagnostic, DiscoverResult, Rule } from "../discovery/index.js";
-import type { Injection } from "../testing/injection-log.js";
+import type { Injection } from "../runtime/injection-log.js";
 
 /** Maximum number of injection entries surfaced by `format()`. */
 export const MAX_INJECTIONS_RENDERED = 5;
 
 export interface FormatOptions {
-  /** Per-session injection telemetry buffer (see `testing/injection-log`). */
+  /** Per-session injection telemetry buffer (see `runtime/injection-log`). */
   injections?: readonly Injection[];
 }
 

@@ -19,6 +19,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   populated at both `recordInjection` call sites in the `tool_result`
   handler.
 
+### Changed (internal)
+
+- Moved `src/testing/injection-log.ts` → `src/runtime/injection-log.ts`.
+  The module is per-session runtime telemetry called from the production
+  `tool_result` handler; the `testing/` location was misleading. Test
+  imports (`injectionLog`, `clearInjectionLog`) updated in place.
+  No public API change — the extension entry-point is unchanged.
+
 ## [0.1.0] - 2026-06-02
 
 Initial public release. Source-fork of @the-forge-flow/pi-rules v0.1.0

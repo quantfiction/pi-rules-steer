@@ -14,7 +14,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { clearInjectionLog, recordInjection } from "../testing/injection-log.js";
+import { clearInjectionLog, recordInjection } from "../runtime/injection-log.js";
 import { runDoctor } from "./doctor.js";
 
 type FakePi = {
