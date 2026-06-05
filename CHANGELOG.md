@@ -19,6 +19,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   populated at both `recordInjection` call sites in the `tool_result`
   handler.
 
+### Fixed
+
+- `/pi-rules-steer doctor` output now wraps the report in a markdown fenced
+  code block before passing to `pi.sendUserMessage()`. The pi TUI renders
+  user messages as markdown, which previously silently consumed `*` / `**`
+  characters in path globs (e.g. `services/web/src/**/*.tsx` rendered as
+  `services/web/src//*.tsx`). With the fence, asterisks are preserved
+  verbatim. `format()` itself remains a pure plaintext emitter.
+
 ### Changed (internal)
 
 - Moved `src/testing/injection-log.ts` → `src/runtime/injection-log.ts`.
