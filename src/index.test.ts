@@ -577,7 +577,9 @@ describe("piRulesSteerExtension — slash command", () => {
         ?.options as any;
       const fakeUiCtx = { hasUI: false, ui: { notify: () => {} } };
       await opts.handler("doctor", fakeUiCtx);
-      expect(fp.__userMessages.some((m) => m.startsWith("pi-rules-steer doctor: OK"))).toBe(true);
+      expect(
+        fp.__userMessages.some((m) => m.includes("pi-rules-steer doctor: OK")),
+      ).toBe(true);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }

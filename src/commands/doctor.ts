@@ -25,5 +25,8 @@ export async function runDoctor(
     return;
   }
   if (uiCtx?.hasUI) uiCtx.ui.notify(report, errored ? "error" : "info");
-  pi.sendUserMessage(report);
+  // sendUserMessage renders content as markdown in the TUI; wrap the report in
+  // a fenced code block so literal '*' / '**' in path globs aren't interpreted
+  // as italic/bold markers (which silently strip the asterisks from the output).
+  pi.sendUserMessage(`\`\`\`\n${report}\n\`\`\``);
 }

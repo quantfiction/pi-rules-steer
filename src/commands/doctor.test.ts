@@ -53,9 +53,13 @@ describe("runDoctor", () => {
     // biome-ignore lint/suspicious/noExplicitAny: minimal pi shape for handler
     await runDoctor(pi as any, null, tmp);
     expect(pi.__messages).toHaveLength(1);
-    expect(pi.__messages[0]).toMatch(
-      /^pi-rules-steer doctor: OK — 1 rules, 0 errors, 0 skipped\n/,
+    expect(pi.__messages[0]).toContain(
+      "pi-rules-steer doctor: OK — 1 rules, 0 errors, 0 skipped\n",
     );
+    // sendUserMessage output is wrapped in a fenced code block to prevent
+    // markdown rendering from eating literal '*' in path globs.
+    expect(pi.__messages[0]).toMatch(/^```\n/);
+    expect(pi.__messages[0]).toMatch(/\n```$/);
   });
 
   it("with parse_error: emits ERRORS header containing the reason", async () => {
@@ -64,8 +68,8 @@ describe("runDoctor", () => {
     // biome-ignore lint/suspicious/noExplicitAny: minimal pi shape
     await runDoctor(pi as any, null, tmp);
     expect(pi.__messages).toHaveLength(1);
-    expect(pi.__messages[0]).toMatch(
-      /^pi-rules-steer doctor: ERRORS — 0 rules, 1 errors, 0 skipped\n/,
+    expect(pi.__messages[0]).toContain(
+      "pi-rules-steer doctor: ERRORS — 0 rules, 1 errors, 0 skipped\n",
     );
     expect(pi.__messages[0]).toContain("missing description");
   });
