@@ -6,10 +6,11 @@ distinct from command-pattern steering ([pi-bash-steer](https://github.com/quant
 and safety blocking (pi-guardrails).
 
 **Status: v0.1.0 shipped. `main` carries unreleased v0.2 work:
-`/pi-rules-steer doctor` now surfaces a `Last injections` section
-(last 5, branch tag + rule id + path/scope+glob + ISO 8601 timestamp).
-144 vitest tests, watcher-driven hot reload, operative + scope
-branches.**
+bash tool interception (Branch 3) for `grep`/`rg`/`ls`/`cat`/`head`/
+`tail`/`fd` invocations; `/pi-rules-steer doctor` surfaces a
+`Last injections` section (last 5, branch tag + rule id + path/scope+glob
++ ISO 8601 timestamp). 196 vitest tests, watcher-driven hot reload,
+operative + scope + bash branches.**
 
 ## What it does
 
@@ -23,7 +24,15 @@ tool results when the agent operates on matching paths.
 - **Search tools** (`grep` / `find` / `ls` / `code_search`): inject rules
   matching the *search scope* once per call — NOT per result. (This is
   the search-scope semantic added on top of the upstream forge-flow fork.)
-- **Bash**: not hooked in v0.1. Deferred to v0.2 (verb-aware extraction).
+- **Bash** (v0.2): rules also inject on bash invocations of supported
+  search/read verbs (`grep` non-recursive, `rg`, `ls` non-recursive,
+  `cat` excluding redirect/heredoc shapes, `head`, `tail`, `fd`).
+  Deliberately does NOT cover `find`, `grep -r/-R`, or `ls -R` —
+  those are anti-patterns blocked by
+  [pi-bash-steer](https://github.com/quantfiction/pi-bash-steer)
+  at `tool_call`. The two extensions compose by separation of concerns:
+  pi-bash-steer owns blocking, pi-rules-steer owns rule injection on
+  the permitted set.
 
 ## Origin
 

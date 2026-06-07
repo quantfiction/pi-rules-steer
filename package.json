@@ -44,12 +44,14 @@
   },
   "dependencies": {
     "picomatch": "^4.0.0",
+    "shell-quote": "^1.8.4",
     "yaml": "^2.6.0"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.74.0",
     "@types/node": "^22.10.0",
     "@types/picomatch": "^4.0.0",
+    "@types/shell-quote": "^1.7.5",
     "@vitest/coverage-v8": "^4.1.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0",

@@ -21,6 +21,7 @@ import { discover, ruleRootCandidates, type Diagnostic } from "./discovery/index
 import { reconcileInjectedIds } from "./discovery/reconcile.js";
 import type { Rule } from "./discovery/types.js";
 import { startWatcher, type Watcher, type WatcherOptions } from "./discovery/watcher.js";
+import { extractBashScope } from "./extraction/bash.js";
 import { extractScope } from "./extraction/scope.js";
 import { toRelativePosixForLog } from "./internal/log-path.js";
 import { compileMatcher, type Matcher } from "./matching/index.js";
@@ -139,25 +140,56 @@ export function makeExtension(deps: ExtensionDeps = {}): (pi: ExtensionAPI) => v
       // Single-inject invariant: one fire per rule across the whole session,
       // dedup'd via the shared injectedIds Set (also used by Branch 1).
       const extracted = extractScope(e.toolName, e.input, ctx.cwd);
-      if (extracted === null) return;
-      if (extracted.scope === null && extracted.glob === null) return;
-      const matches = matcher.matchScope({ scope: extracted.scope, glob: extracted.glob });
-      if (matches.length === 0) return;
-      const fresh = matches.filter((r) => !injectedIds.has(r.id));
-      if (fresh.length === 0) return;
-      for (const r of fresh) {
-        injectedIds.add(r.id);
-        recordInjection({
-          ruleId: r.id,
-          scope: extracted.scope,
-          glob: extracted.glob,
-          viaScope: true,
-          at: Date.now(),
-        });
+      if (extracted !== null) {
+        if (extracted.scope === null && extracted.glob === null) return;
+        const matches = matcher.matchScope({ scope: extracted.scope, glob: extracted.glob });
+        if (matches.length === 0) return;
+        const fresh = matches.filter((r) => !injectedIds.has(r.id));
+        if (fresh.length === 0) return;
+        for (const r of fresh) {
+          injectedIds.add(r.id);
+          recordInjection({
+            ruleId: r.id,
+            scope: extracted.scope,
+            glob: extracted.glob,
+            viaScope: true,
+            at: Date.now(),
+          });
+        }
+        return {
+          content: [...fresh.map((r) => ({ type: "text" as const, text: r.body })), ...e.content],
+        };
       }
-      return {
-        content: [...fresh.map((r) => ({ type: "text" as const, text: r.body })), ...e.content],
-      };
+
+      // Branch 3 (v0.2): bash tool — parse `input.command`, extract scope
+      // from a supported verb (grep non-recursive / rg / ls non-recursive /
+      // cat / head / tail / fd), and inject like Branch 2. Same single-inject
+      // invariant via shared `injectedIds`. `find` is deliberately excluded
+      // — pi-bash-steer blocks it as a universal footgun.
+      if (e.toolName === "bash") {
+        const rawCommand = (e.input as { command?: unknown }).command;
+        if (typeof rawCommand !== "string" || rawCommand.length === 0) return;
+        const bashScope = extractBashScope(rawCommand, ctx.cwd);
+        if (bashScope === null) return;
+        if (bashScope.scope === null && bashScope.glob === null) return;
+        const matches = matcher.matchScope({ scope: bashScope.scope, glob: bashScope.glob });
+        if (matches.length === 0) return;
+        const fresh = matches.filter((r) => !injectedIds.has(r.id));
+        if (fresh.length === 0) return;
+        for (const r of fresh) {
+          injectedIds.add(r.id);
+          recordInjection({
+            ruleId: r.id,
+            scope: bashScope.scope,
+            glob: bashScope.glob,
+            viaScope: true,
+            at: Date.now(),
+          });
+        }
+        return {
+          content: [...fresh.map((r) => ({ type: "text" as const, text: r.body })), ...e.content],
+        };
+      }
     });
 
     pi.on("session_shutdown", async (_e, _ctx) => {

@@ -17,6 +17,7 @@ export default defineConfig({
         // are intentionally under-tested per the testing-principles
         // "over-testing thin wrappers" anti-pattern.
         'src/extraction/scope.ts': { lines: 80, branches: 80, functions: 80, statements: 80 },
+        'src/extraction/bash.ts': { lines: 80, branches: 80, functions: 80, statements: 80 },
         'src/matching/compile.ts': { lines: 80, branches: 80, functions: 80, statements: 80 },
         'src/index.ts': { lines: 80, branches: 80, functions: 80, statements: 80 },
       },

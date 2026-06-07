@@ -5,3 +5,7 @@ dist/
 .code-index/
 coverage/
 *.log
+
+# Planning artifacts — lifecycle ROUGH/INTAKE/TECHNICAL_DESIGN docs live locally,
+# not on main. Promote to a `planning` branch if team visibility is needed.
+docs/plans/

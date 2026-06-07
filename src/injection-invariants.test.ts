@@ -210,3 +210,198 @@ describe("Invariant 7 — operative-then-search composition", () => {
     expect(injectionLog).toHaveLength(1);
   });
 });
+
+describe("Invariant 8 — bash branch parity (v0.2)", () => {
+  it("#given rule paths:['docs/**'] #when bash 'grep TODO docs/api.md' #then rule body prepended once", async () => {
+    const dir = mkProject({ paths: ["docs/**"], body: "DOCS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    const result = (await fp.fire(
+      "tool_result",
+      makeToolResult(
+        { command: "grep TODO docs/api.md" },
+        { toolName: "bash", content: [{ type: "text", text: "docs/api.md:42:TODO" }] },
+      ),
+      { cwd: dir },
+    )) as { content: Array<{ type: "text"; text: string }> };
+
+    expect(result.content[0]).toEqual({ type: "text", text: "DOCS_RULE" });
+    expect(result.content.filter((c) => c.text === "DOCS_RULE")).toHaveLength(1);
+    expect(injectionLog).toHaveLength(1);
+  });
+
+  it("#given same rule #when bash 'cat docs/auth.md' #then rule body prepended", async () => {
+    const dir = mkProject({ paths: ["docs/**"], body: "DOCS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    const result = (await fp.fire(
+      "tool_result",
+      makeToolResult(
+        { command: "cat docs/auth.md" },
+        { toolName: "bash", content: [{ type: "text", text: "# Auth" }] },
+      ),
+      { cwd: dir },
+    )) as { content: Array<{ type: "text"; text: string }> };
+
+    expect(result.content[0]).toEqual({ type: "text", text: "DOCS_RULE" });
+    expect(injectionLog).toHaveLength(1);
+  });
+
+  it("#given rule paths:['docs/**'] #when bash 'cat > docs/auth.md <<EOF...' (heredoc-write) #then NO inject", async () => {
+    // The agent is WRITING, not reading. Branch 3 must skip redirect shapes
+    // even though `docs/auth.md` token would otherwise match.
+    const dir = mkProject({ paths: ["docs/**"], body: "DOCS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    const result = await fp.fire(
+      "tool_result",
+      makeToolResult(
+        { command: "cat > docs/auth.md <<EOF\nbody\nEOF" },
+        { toolName: "bash" },
+      ),
+      { cwd: dir },
+    );
+    expect(result).toBeUndefined();
+    expect(injectionLog).toHaveLength(0);
+  });
+
+  it("#given rule paths:['docs/**'] #when bash 'grep -r TODO docs/' (recursive) #then NO inject (deferred to pi-bash-steer)", async () => {
+    // pi-bash-steer's __builtins__grep_recursive blocks this shape at
+    // tool_call. If it slips through (warn mode, missing extension), we
+    // STILL bail — the architectural separation says recursive shapes are
+    // anti-patterns covered by Branch 2 via pi-bash-steer's redirect.
+    const dir = mkProject({ paths: ["docs/**"], body: "DOCS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    const result = await fp.fire(
+      "tool_result",
+      makeToolResult({ command: "grep -r TODO docs/" }, { toolName: "bash" }),
+      { cwd: dir },
+    );
+    expect(result).toBeUndefined();
+    expect(injectionLog).toHaveLength(0);
+  });
+});
+
+describe("Invariant 9 — cross-branch single-inject (Branch 2 + Branch 3)", () => {
+  it("#given bash grep fired rule #when pi-native grep on same scope #then NOT re-injected", async () => {
+    // The shared injectedIds Set must span all three branches. A bash-origin
+    // injection in Branch 3 must dedup against a subsequent pi-native
+    // grep call in Branch 2 (same rule id).
+    const dir = mkProject({ paths: ["docs/**"], body: "DOCS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    const r1 = await fp.fire(
+      "tool_result",
+      makeToolResult({ command: "grep TODO docs/api.md" }, { toolName: "bash" }),
+      { cwd: dir },
+    );
+    expect(r1).not.toBeUndefined();
+    expect(injectionLog).toHaveLength(1);
+
+    const r2 = await fp.fire(
+      "tool_result",
+      makeToolResult({ path: "docs", pattern: "TODO" }, { toolName: "grep" }),
+      { cwd: dir },
+    );
+    expect(r2).toBeUndefined();
+    expect(injectionLog).toHaveLength(1);
+  });
+
+  it("#given operative read fired rule #when bash 'cat docs/x.md' #then NOT re-injected", async () => {
+    const dir = mkProject({ paths: ["docs/**"], body: "DOCS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    const r1 = await fp.fire("tool_result", makeToolResult({ path: "docs/x.md" }), {
+      cwd: dir,
+    });
+    expect(r1).not.toBeUndefined();
+
+    const r2 = await fp.fire(
+      "tool_result",
+      makeToolResult({ command: "cat docs/x.md" }, { toolName: "bash" }),
+      { cwd: dir },
+    );
+    expect(r2).toBeUndefined();
+    expect(injectionLog).toHaveLength(1);
+  });
+});
+
+describe("Invariant 10 — bash branch no-match silence", () => {
+  it("#given rule paths:['docs/**'] #when bash 'cat src/index.ts' #then NO inject (out-of-scope)", async () => {
+    const dir = mkProject({ paths: ["docs/**"], body: "DOCS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    const result = await fp.fire(
+      "tool_result",
+      makeToolResult({ command: "cat src/index.ts" }, { toolName: "bash" }),
+      { cwd: dir },
+    );
+    expect(result).toBeUndefined();
+    expect(injectionLog).toHaveLength(0);
+  });
+
+  it("#given any rule #when bash 'echo hello' or 'pnpm test' #then NO inject (unrecognized verb)", async () => {
+    const dir = mkProject({ paths: ["**"], body: "ALWAYS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    for (const command of ["echo hello", "pnpm test", "git status", "node script.js"]) {
+      const result = await fp.fire(
+        "tool_result",
+        makeToolResult({ command }, { toolName: "bash" }),
+        { cwd: dir },
+      );
+      expect(result).toBeUndefined();
+    }
+    expect(injectionLog).toHaveLength(0);
+  });
+
+  it("#given any rule #when bash command is missing or empty #then NO inject (defensive)", async () => {
+    const dir = mkProject({ paths: ["**"], body: "ALWAYS_RULE" });
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const fp = makeFakePi();
+    piRulesSteerExtension(fp);
+    await fp.fire("session_start", {}, { cwd: dir });
+
+    expect(
+      await fp.fire("tool_result", makeToolResult({}, { toolName: "bash" }), { cwd: dir }),
+    ).toBeUndefined();
+    expect(
+      await fp.fire("tool_result", makeToolResult({ command: "" }, { toolName: "bash" }), {
+        cwd: dir,
+      }),
+    ).toBeUndefined();
+    expect(
+      await fp.fire(
+        "tool_result",
+        makeToolResult({ command: 42 }, { toolName: "bash" }),
+        { cwd: dir },
+      ),
+    ).toBeUndefined();
+    expect(injectionLog).toHaveLength(0);
+  });
+});
