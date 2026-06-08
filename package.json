@@ -1,6 +1,6 @@
 {
   "name": "pi-rules-steer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pi extension that injects path-conditional rule content into tool results. Adds search-scope semantics on top of @the-forge-flow/pi-rules.",
   "license": "MIT",
   "author": "quantfiction",

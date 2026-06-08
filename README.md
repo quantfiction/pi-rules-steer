@@ -5,12 +5,12 @@ Owns the "rule injection" axis of the pi tool-interception ecosystem —
 distinct from command-pattern steering ([pi-bash-steer](https://github.com/quantfiction/pi-bash-steer))
 and safety blocking (pi-guardrails).
 
-**Status: v0.1.0 shipped. `main` carries unreleased v0.2 work:
-bash tool interception (Branch 3) for `grep`/`rg`/`ls`/`cat`/`head`/
-`tail`/`fd` invocations; `/pi-rules-steer doctor` surfaces a
-`Last injections` section (last 5, branch tag + rule id + path/scope+glob
-+ ISO 8601 timestamp). 196 vitest tests, watcher-driven hot reload,
-operative + scope + bash branches.**
+**Status: v0.2.0 shipped. Bash tool interception (Branch 3) for
+`grep`/`rg`/`ls`/`cat`/`head`/`tail`/`fd` invocations;
+`/pi-rules-steer doctor` surfaces a `Last injections` section
+(last 5, branch tag + rule id + path/scope+glob + ISO 8601 timestamp).
+196 vitest tests, watcher-driven hot reload, operative + scope + bash
+branches.**
 
 ## What it does
 
@@ -47,7 +47,7 @@ Add to `~/.pi/agent/settings.json` packages array:
 {
   "packages": [
     "git:github.com/quantfiction/pi-bash-steer@v0.3.0",
-    "git:github.com/quantfiction/pi-rules-steer@v0.1.0",
+    "git:github.com/quantfiction/pi-rules-steer@v0.2.0",
     "npm:@tomooshi/condensed-milk-pi"
   ]
 }

@@ -6,9 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-07
+
 ### Added
 
-- **Bash tool interception (v0.2 Branch 3).** Path-conditional rules now
+- **Bash tool interception (Branch 3).** Path-conditional rules now
   fire on `tool_result` events for bash invocations of supported
   search/read verbs: `grep` (non-recursive), `rg`, `ls` (non-recursive),
   `cat` (no redirect/heredoc), `head`, `tail`, `fd`. Closes the
@@ -112,4 +114,5 @@ semantics added on top of the upstream operative-tool injection model.
   runtimes (tracked as task v0.1.6).~~ Completed in v0.1.6 smoke test
   (2026-06-03); all 3 runtimes verified.
 
+[0.2.0]: https://github.com/quantfiction/pi-rules-steer/releases/tag/v0.2.0
 [0.1.0]: https://github.com/quantfiction/pi-rules-steer/releases/tag/v0.1.0
